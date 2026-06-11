@@ -67,7 +67,7 @@ export default function Sidebar({
       <div className="p-6 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-indigo-600 rounded-2xl text-white shadow-md shadow-indigo-600/30">
-            <TrendingUp className="w-6 h-6 animate-pulse" />
+            <TrendingUp className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider leading-none">
@@ -89,10 +89,10 @@ export default function Sidebar({
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                 isActive 
-                  ? 'bg-slate-950 dark:bg-indigo-600 text-white shadow-md shadow-slate-900/10' 
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-indigo-600 text-white shadow-sm' 
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Icon className={`w-4.5 h-4.5 shrink-0 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
@@ -106,7 +106,7 @@ export default function Sidebar({
       </nav>
 
       {/* Profile Info block */}
-      <div className="p-4 m-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/65 space-y-3">
+      <div className="p-4 m-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/40 dark:to-slate-800/20 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 space-y-3">
         {currentUser && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export default function Sidebar({
           <button
             onClick={onToggleDarkMode}
             title={isDarkMode ? "Mode Terang" : "Mode Gelap"}
-            className="w-full p-2 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:shadow-2xs rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all cursor-pointer"
+            className="w-full p-2 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all duration-200 cursor-pointer"
           >
             {isDarkMode ? (
               <span className="flex items-center gap-1.5 text-[10px] font-bold"><Sun className="w-3.5 h-3.5 text-amber-500" /> Mode Terang</span>

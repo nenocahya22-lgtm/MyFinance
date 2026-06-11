@@ -65,12 +65,12 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xl p-8 transition-all duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl p-6 md:p-8 transition-all duration-300">
         
         {/* Brand Header */}
         <div className="flex flex-col items-center justify-center text-center mb-8">
-          <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/30 mb-3">
+          <div className="p-3 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl text-white shadow-lg shadow-indigo-600/30 mb-3 ring-1 ring-indigo-400/20">
             <TrendingUp className="w-7 h-7" />
           </div>
           <h1 className="text-xl font-black text-slate-950 dark:text-white uppercase tracking-wider">
@@ -95,7 +95,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
 
         {/* Error Alert */}
         {errorPayload && (
-          <div className="flex items-start gap-2.5 p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-150 dark:border-red-900/60 rounded-2xl text-red-600 dark:text-red-400 text-xs font-semibold mb-5 animate-slide-up">
+          <div className="flex items-start gap-2.5 p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-2xl text-red-600 dark:text-red-400 text-xs font-semibold mb-5 animate-slide-up shadow-sm">
             <AlertCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" />
             <span>{errorPayload}</span>
           </div>
@@ -120,7 +120,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Budi Handoyo"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-150 dark:border-slate-700/60 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all duration-200"
                 />
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@keluarga.com"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-150 dark:border-slate-700/60 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all duration-200"
               />
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-150 dark:border-slate-700/60 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all duration-200"
               />
             </div>
           </div>
@@ -278,7 +278,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-450 active:scale-[0.98] text-white text-xs font-extrabold rounded-2xl transition-all duration-150 shadow-md shadow-indigo-600/10 mt-2 cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 disabled:from-indigo-400 disabled:to-indigo-400 active:scale-[0.98] text-white text-xs font-extrabold rounded-2xl transition-all duration-200 shadow-lg shadow-indigo-600/20 mt-2 cursor-pointer flex items-center justify-center gap-1.5"
           >
             {loading ? (
               <span className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />

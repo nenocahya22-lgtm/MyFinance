@@ -78,22 +78,22 @@ export default function Layout({
         <div className="lg:pl-72 flex flex-col min-h-screen w-full pb-20 lg:pb-8">
           
           {/* TOP APPBAR HEADER */}
-          <header className="sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/80 px-4 md:px-8 py-4.5 z-25 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
+          <header className="sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/80 px-3 md:px-8 py-3 md:py-4.5 z-25 flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 transition-colors">
             
             {/* Left title section */}
             <div>
-              <h2 className="text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">
-                Financial Management Platform
+              <h2 className="text-[10px] md:text-xs font-black uppercase text-indigo-500 dark:text-indigo-400 tracking-wider">
+                SakuKeluarga
               </h2>
-              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight mt-1">
-                {getIndoMonthLabel(selectedMonth)} Bookkeeping
+              <h3 className="text-xs md:text-sm font-black text-slate-800 dark:text-white tracking-tight mt-0.5 md:mt-1">
+                {getIndoMonthLabel(selectedMonth)}
               </h3>
             </div>
 
             {/* Bookkeeping Quick Month Selector panel */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-md w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 md:gap-2 max-w-md w-full sm:w-auto">
               
-              <div className="flex items-center bg-slate-50 dark:bg-slate-800 rounded-xl px-2.5 py-1.5 border border-slate-150 dark:border-slate-700/60 grow sm:grow-0">
+              <div className="flex items-center bg-slate-50 dark:bg-slate-800 rounded-xl px-2 md:px-2.5 py-1 md:py-1.5 border border-slate-150 dark:border-slate-700/60 grow sm:grow-0">
                 <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-extrabold pr-2 border-r border-slate-200 dark:border-slate-700 select-none">
                   Buku Bulan
                 </span>
@@ -112,7 +112,7 @@ export default function Layout({
               </div>
 
               {/* Add New Month Form */}
-              <form onSubmit={handleAddMonthSubmit} className="flex gap-1.5 shrink-0">
+              <form onSubmit={handleAddMonthSubmit} className="hidden sm:flex gap-1.5 shrink-0">
                 <input
                   type="month"
                   value={newMonthInput}
@@ -133,7 +133,7 @@ export default function Layout({
           </header>
 
           {/* MAIN PAGE INTERIOR ROUTE AREA */}
-          <main className="flex-1 px-4 md:px-8 py-6 max-w-7xl w-full mx-auto animate-slide-up">
+          <main className="flex-1 px-3 md:px-8 py-4 md:py-6 max-w-7xl w-full mx-auto animate-slide-up transition-all duration-300">
             {children}
           </main>
 

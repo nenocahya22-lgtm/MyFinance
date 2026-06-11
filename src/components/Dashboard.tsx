@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   TrendingUp, 
   TrendingDown, 
-  ArrowUpRight, 
+  ArrowUpRight, ArrowLeftRight, BarChart3, 
   ArrowDownLeft, 
   Landmark, 
   Users, 
@@ -111,7 +111,7 @@ export default function Dashboard({
     <div className="space-y-6">
       
       {/* SECTION 1: GREETING & LIMIT ALERTS */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6.5 md:p-8 text-white shadow-lg relative overflow-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl md:rounded-3xl p-4 md:p-8 text-white shadow-lg relative overflow-hidden">
         
         {/* Subtle background overlay circles */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl transform translate-x-12 -translate-y-12 shrink-0 pointer-events-none" />
@@ -121,7 +121,7 @@ export default function Dashboard({
           <span className="px-3.5 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-indigo-200">
             {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </span>
-          <h2 className="text-xl md:text-2xl font-black tracking-tight mt-1.5 flex items-center gap-2">
+          <h2 className="text-lg md:text-2xl font-black tracking-tight mt-1 md:mt-1.5 flex items-center gap-2">
             Halo, {currentUser?.name || syncUserId || 'Keluarga Bijak'}! 👋
           </h2>
           <p className="text-sm text-slate-350 text-slate-300 font-semibold max-w-xl leading-relaxed">
@@ -133,7 +133,7 @@ export default function Dashboard({
         <button
           type="button"
           onClick={onOpenTxModal}
-          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-extrabold text-xs uppercase tracking-wider px-5.5 py-3.5 rounded-2xl transition-all cursor-pointer shadow-lg shadow-indigo-600/30 z-10"
+          className="inline-flex items-center gap-1.5 md:gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-extrabold text-[10px] md:text-xs uppercase tracking-wider px-3.5 md:px-5.5 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl transition-all cursor-pointer shadow-lg shadow-indigo-600/30 z-10 w-full md:w-auto justify-center"
         >
           <PlusCircle className="w-4 h-4 shrink-0" />
           <span>Tambah Transaksi Baru</span>
@@ -155,10 +155,10 @@ export default function Dashboard({
       )}
 
       {/* SECTION 2: RINGKASAN KEWANNGAN 4-COLUMN CARDS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
         
         {/* Card 1: Saldo Bersih */}
-        <div className={`p-6 rounded-3xl border transition-all duration-300 shadow-3xs hover:shadow-2xs ${
+        <div className={`p-3 md:p-6 rounded-2xl md:rounded-3xl border transition-all duration-300 shadow-3xs hover:shadow-2xs ${
           isBalanceNegative 
             ? 'bg-rose-950 border-rose-900 text-rose-50' 
             : 'bg-indigo-950 border-indigo-900 text-white'
@@ -171,7 +171,7 @@ export default function Dashboard({
               <Landmark className="w-4 h-4" />
             </div>
           </div>
-          <h3 className="text-2xl font-black mt-4 tracking-tight leading-none">
+          <h3 className="text-sm md:text-2xl font-black mt-2 md:mt-4 tracking-tight leading-none">
             {formatRupiah(summary.remainingBalance)}
           </h3>
           <p className="text-[10px] mt-4 opacity-70 font-semibold">
@@ -180,16 +180,16 @@ export default function Dashboard({
         </div>
 
         {/* Card 2: Pendapatan */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl shadow-3xs hover:shadow-2xs transition-all duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-3xs hover:shadow-2xs transition-all duration-300">
           <div className="flex items-start justify-between">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 block">
-              Pendapatan Bulan Ini
+              Pendapatan
             </span>
             <div className="p-2 bg-emerald-50 dark:bg-emerald-950 rounded-xl text-emerald-600 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30">
               <ArrowUpRight className="w-4 h-4" />
             </div>
           </div>
-          <h3 className="text-2xl font-black mt-4 tracking-tight leading-none text-slate-900 dark:text-white">
+          <h3 className="text-sm md:text-2xl font-black mt-2 md:mt-4 tracking-tight leading-none text-slate-900 dark:text-white">
             {formatRupiah(summary.totalIncome)}
           </h3>
           <p className="text-[10px] text-slate-400 mt-4 font-semibold">
@@ -198,16 +198,16 @@ export default function Dashboard({
         </div>
 
         {/* Card 3: Pengeluaran */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl shadow-3xs hover:shadow-2xs transition-all duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-3xs hover:shadow-2xs transition-all duration-300">
           <div className="flex items-start justify-between">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 block">
-              Pengeluaran Bulan Ini
+              Pengeluaran
             </span>
             <div className="p-2 bg-rose-50 dark:bg-rose-950 rounded-xl text-rose-600 dark:text-rose-450 border border-rose-100 dark:border-rose-900/30">
               <ArrowDownLeft className="w-4 h-4" />
             </div>
           </div>
-          <h3 className="text-2xl font-black mt-4 tracking-tight leading-none text-slate-900 dark:text-white">
+          <h3 className="text-sm md:text-2xl font-black mt-2 md:mt-4 tracking-tight leading-none text-slate-900 dark:text-white">
             {formatRupiah(summary.totalExpense)}
           </h3>
           <p className="text-[10px] text-slate-400 mt-4 font-semibold">
@@ -216,16 +216,16 @@ export default function Dashboard({
         </div>
 
         {/* Card 4: Dana Tersimpan */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl shadow-3xs hover:shadow-2xs transition-all duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-3xs hover:shadow-2xs transition-all duration-300">
           <div className="flex items-start justify-between">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 block">
-              Dana Saku Alokasi
+              Dana Alokasi
             </span>
             <div className="p-2 bg-indigo-50 dark:bg-indigo-950 rounded-xl text-indigo-600 dark:text-indigo-455 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30">
               <PiggyBank className="w-4 h-4" />
             </div>
           </div>
-          <h3 className="text-2xl font-black mt-4 tracking-tight leading-none text-slate-900 dark:text-white">
+          <h3 className="text-sm md:text-2xl font-black mt-2 md:mt-4 tracking-tight leading-none text-slate-900 dark:text-white">
             {formatRupiah(summary.allocatedBalance)}
           </h3>
           <p className="text-[10px] text-slate-400 mt-4 font-semibold">
@@ -236,20 +236,24 @@ export default function Dashboard({
       </div>
 
       {/* SECIFIC REQUIREMENT - MULTI-USER EXPENSE SPLIT (Suami vs Istri) & TARGET FINANCIAL GOALS PROGRESS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
         
         {/* Widget: Split Pengeluaran Suami vs Istri */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl shadow-3xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-3xs">
           <div className="border-b border-slate-50 dark:border-slate-800 pb-3 mb-4">
-            <h3 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider">
+            <h3 className="text-xs md:text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider">
               Pembagian Belanja Suami & Istri
             </h3>
             <p className="text-[10px] text-slate-450 dark:text-slate-400 mt-0.5">Proporsi pengeluaran per individu pencatat dalam database keluarga</p>
           </div>
 
           {userExpensesSplit.length === 0 ? (
-            <div className="py-12 text-center text-xs font-bold text-slate-450 italic bg-slate-50 dark:bg-slate-800/40 rounded-2xl">
-              Belum ada data belanja yang terbagi bulan ini.
+            <div className="py-8 md:py-12 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+              <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <TrendingDown className="w-5 h-5 text-slate-400" />
+              </div>
+              Belum ada data belanja yang terbagi
+              <p className="text-[10px] mt-2 text-slate-400 font-normal">Catat transaksi untuk melihat pembagian pengeluaran.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -278,10 +282,10 @@ export default function Dashboard({
         </div>
 
         {/* Widget: Financial Goals Progress bars */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl shadow-3xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-3xs">
           <div className="border-b border-slate-50 dark:border-slate-800 pb-3 mb-4 flex justify-between items-center">
             <div>
-              <h3 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider">
+              <h3 className="text-xs md:text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider">
                 Target & Tabungan Keluarga
               </h3>
               <p className="text-[10px] text-slate-450 dark:text-slate-400 mt-0.5">Dana Darurat, Rumah, Pendidikan Anak & Kendaraan</p>
@@ -292,8 +296,12 @@ export default function Dashboard({
           </div>
 
           {goals.length === 0 ? (
-            <div className="py-12 text-center text-xs font-bold text-slate-450 italic bg-slate-50 dark:bg-slate-800/40 rounded-2xl">
-              Belum ada target keuangan aktif. Pengaturan Tabungan ada di menu samping.
+            <div className="py-8 md:py-12 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+              <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-slate-400" />
+              </div>
+              Belum ada target keuangan aktif
+              <p className="text-[10px] mt-2 text-slate-400 font-normal">Buat target tabungan di menu Target Keuangan.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -329,10 +337,10 @@ export default function Dashboard({
       </div>
 
       {/* SECTION 3 & 4 DOUBLE COLUMN: FLOW CHART AND RECENT TRANSACTIONS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-6">
         
         {/* Left: Chart Box */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl shadow-3xs">
+        <div className="lg:col-span-12 xl:col-span-7 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-3xs">
           <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-800 pb-4 mb-4">
             <div>
               <h3 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider">
@@ -354,8 +362,12 @@ export default function Dashboard({
           </div>
 
           {dailyFlows.length === 0 ? (
-            <div className="py-14 text-center text-xs font-bold text-slate-400 bg-slate-50/50 dark:bg-slate-850 rounded-2xl border border-dashed border-slate-150">
-              Belum ada diagram kas bulanan. Catat transaksi terlebih dahulu!
+            <div className="py-10 md:py-14 text-center text-xs font-semibold text-slate-400 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-slate-400" />
+              </div>
+              Belum ada data arus kas
+              <p className="text-[10px] mt-2 text-slate-400 font-normal">Mulai catat pemasukan dan pengeluaran untuk melihat grafik.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -400,7 +412,7 @@ export default function Dashboard({
           <div className="mt-6 pt-5 border-t border-slate-50 dark:border-slate-800 space-y-3">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Alokasi Dana Saku Teratas</span>
             {buckets.length === 0 ? (
-              <p className="text-[10px] text-slate-450 italic">Belum ada kantong saku alokasi diatur.</p>
+              <p className="text-[10px] text-slate-400 italic">Belum ada kantong alokasi. Atur di menu Dana Saku.</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {buckets.slice(0, 4).map((b) => (
@@ -418,10 +430,10 @@ export default function Dashboard({
         </div>
 
         {/* Right: Recent activity logs & WebSockets presence panel */}
-        <div className="lg:col-span-12 xl:col-span-5 space-y-6 lg:col-start-1 xl:col-span-5">
+        <div className="lg:col-span-12 xl:col-span-5 space-y-3 md:space-y-6 lg:col-start-1 xl:col-span-5">
           
           {/* Recent transactions list */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl shadow-3xs">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-3xs">
             <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-800 pb-4 mb-4">
               <div>
                 <h3 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider">
@@ -432,8 +444,12 @@ export default function Dashboard({
             </div>
 
             {recentTransactions.length === 0 ? (
-              <div className="py-12 text-center text-xs font-bold text-slate-450 italic bg-slate-50 dark:bg-slate-800/40 rounded-2xl">
-                Belum ada kas tercatat untuk buku periode ini.
+              <div className="py-8 md:py-12 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <ArrowLeftRight className="w-5 h-5 text-slate-400" />
+                </div>
+                Belum ada transaksi tercatat
+                <p className="text-[10px] mt-2 text-slate-400 font-normal">Klik tombol Tambah Transaksi untuk memulai.</p>
               </div>
             ) : (
               <div className="space-y-3.5">
@@ -490,7 +506,7 @@ export default function Dashboard({
 
           {/* Socket.IO Presence list */}
           {syncCode && (
-            <div className="bg-slate-50 dark:bg-slate-850 border border-slate-200 p-5 rounded-3xl space-y-3.5">
+            <div className="bg-slate-50 dark:bg-slate-850 border border-slate-200 p-3 md:p-5 rounded-2xl md:rounded-3xl space-y-2 md:space-y-3.5">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-indigo-600 dark:text-indigo-400 animate-bounce" />
                 <div>

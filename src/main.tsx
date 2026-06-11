@@ -3,13 +3,25 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Register PWA Service Worker for offline resilience
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('PWA Service Worker registered:', reg.scope))
-      .catch(err => console.error('PWA Service Worker registration failed:', err));
+// Bersihkan Service Worker lama yang menyebabkan cache corrupt & layar putih
+if ('serviceWorker' in navigator) {
+  // Unregister semua service worker yang ada
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for (let registration of registrations) {
+      registration.unregister();
+      console.log('PWA Service Worker lama berhasil dihapus:', registration.scope);
+    }
   });
+  
+  // Hapus cache lama jika ada
+  if ('caches' in window) {
+    caches.keys().then(function(cacheNames) {
+      cacheNames.forEach(function(cacheName) {
+        caches.delete(cacheName);
+        console.log('Cache PWA lama berhasil dibersihkan:', cacheName);
+      });
+    });
+  }
 }
 
 createRoot(document.getElementById('root')!).render(

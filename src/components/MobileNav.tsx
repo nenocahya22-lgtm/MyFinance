@@ -68,13 +68,13 @@ export default function MobileNav({
         type="button"
         onClick={onOpenTxModal}
         aria-label="Tambah Transaksi Baru secara instan"
-        className="fixed bottom-20 right-5 z-40 p-4 bg-indigo-600 hover:bg-indigo-700 active:scale-90 text-white rounded-full shadow-lg shadow-indigo-600/30 border border-indigo-500/20 transition-all cursor-pointer flex items-center justify-center animate-bounce"
+        className="fixed bottom-20 right-3 md:right-5 z-40 p-3 md:p-4 bg-indigo-600 hover:bg-indigo-700 active:scale-90 text-white rounded-full shadow-lg shadow-indigo-600/30 border border-indigo-500/20 transition-all duration-200 cursor-pointer flex items-center justify-center hover:scale-110"
       >
         <Plus className="w-6 h-6" />
       </button>
 
       {/* 2. BOTTOM NAVIGATION BAR */}
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-around px-2 z-40 transition-colors duration-300">
+      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 flex items-center justify-around px-2 z-40 transition-colors duration-300 safe-area-bottom">
         {mainBottomTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id && !isDrawerOpen;
@@ -122,7 +122,7 @@ export default function MobileNav({
                 <div className="p-1.5 bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400 rounded-lg">
                   <Menu className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider">
+                <h3 className="text-sm font-black text-slate-850 dark:text-white">
                   Menu Lainnya
                 </h3>
               </div>
@@ -143,10 +143,10 @@ export default function MobileNav({
                   <button
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id)}
-                    className={`flex flex-col items-start gap-2 px-4 py-3.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex flex-col items-start gap-2 px-4 py-3.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                       isActive 
-                        ? 'bg-slate-950 dark:bg-indigo-600 text-white shadow-md' 
-                        : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                        ? 'bg-indigo-600 text-white shadow-md' 
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                   >
                     <Icon className="w-5 h-5 shrink-0" />

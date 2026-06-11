@@ -8,9 +8,21 @@
 
 /* Custom visual style overrides */
 body {
-  background-color: #f8fafc; /* Cool slate background */
-  color: #1e293b; /* Dark slate text */
+  background-color: #f8fafc;
+  color: #1e293b;
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safe area for notched phones (iPhone X+) */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Smooth transitions for theme switching - applied only to root elements */
+html.dark, html:not(.dark) {
+  transition: background-color 200ms ease;
 }
 
 @keyframes slide-up {

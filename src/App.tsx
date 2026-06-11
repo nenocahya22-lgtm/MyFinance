@@ -114,7 +114,13 @@ export default function App() {
       ...(options.headers || {})
     };
 
-    let response = await fetch(path, { ...options, headers });
+    let response;
+    try {
+      response = await fetch(path, { ...options, headers });
+    } catch (networkError) {
+      console.warn('Network error on fetch, returning 503 response:', networkError);
+      return new Response(JSON.stringify({ error: 'Network error' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+    }
 
     // Handle session expired -> Auto Refresh Token!
     if ((response.status === 401 || response.status === 403) && refreshToken) {
@@ -811,7 +817,7 @@ export default function App() {
       }}
     >
       {/* 1. FLOATING TOASTS NOTIFICATIONS DRAWER */}
-      <div id="toast-drawer-root" className="fixed top-5 right-5 z-55 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
+      <div id="toast-drawer-root" className="fixed top-5 right-3 left-3 md:right-5 md:left-auto z-55 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
         {toasts.map((t) => {
           let themeColor = 'bg-slate-900 border border-slate-800 text-white dark:bg-slate-900 dark:border-slate-800';
           let Icon = Info;

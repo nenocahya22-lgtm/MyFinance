@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import path from 'path';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT: number = parseInt(process.env.PORT || '3000', 10);
 const JWT_SECRET = 'termux_super_secret_key';
 
 // Middleware dasar agar aplikasi React/Vite bisa komunikasi lancar

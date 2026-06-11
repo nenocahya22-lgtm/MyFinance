@@ -1,0 +1,179 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
+}
+
+model Family {
+  id            String         @id @default(uuid())
+  name          String
+  code          String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  is_deleted    Boolean        @default(false)
+  deleted_at    DateTime?
+  
+  users         User[]
+  accounts      Account[]
+  buckets       Bucket[]
+  transactions  Transaction[]
+  goals         Goal[]
+  debts         Debt[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  role          String         // "OWNER", "MEMBER"
+  familyId      String
+  family        Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  is_deleted    Boolean        @default(false)
+  deleted_at    DateTime?
+  
+  refreshTokens RefreshToken[]
+  transactions  Transaction[]  // created transactions
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id             String        @id @default(uuid())
+  name           String
+  balanceType    String        // "bank" | "cash" | "e-wallet" | "other"
+  color          String        @default("indigo")
+  accountNumber  String?
+  initialBalance Float         @default(0)
+  balance        Float         @default(0) // dynamic balance
+  familyId       String
+  family         Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  is_deleted     Boolean       @default(false)
+  deleted_at     DateTime?
+
+  transactions   Transaction[]
+}
+
+model Bucket {
+  id           String        @id @default(uuid())
+  name         String
+  category     String        @default("umum")
+  targetAmount Float         @default(0)
+  balance      Float         @default(0) // dynamic balance
+  color        String        @default("indigo")
+  icon         String        @default("Layers")
+  familyId     String
+  family       Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  is_deleted   Boolean       @default(false)
+  deleted_at   DateTime?
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id           String    @id @default(uuid())
+  type         String    // "income" | "expense" | "transfer"
+  amount       Float
+  description  String
+  date         String    // YYYY-MM-DD
+  category     String?
+  familyId     String
+  family       Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  accountId    String?
+  account      Account?  @relation(fields: [accountId], references: [id])
+  bucketId     String?
+  bucket       Bucket?   @relation(fields: [bucketId], references: [id])
+  toAccountId  String?   // For transfers
+  creatorId    String
+  creator      User      @relation(fields: [creatorId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  is_deleted   Boolean   @default(false)
+  deleted_at   DateTime?
+}
+
+model Goal {
+  id            String    @id @default(uuid())
+  name          String
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  targetDate    String?   // YYYY-MM-DD
+  familyId      String
+  family        Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  is_deleted    Boolean   @default(false)
+  deleted_at    DateTime?
+}
+
+model Debt {
+  id          String        @id @default(uuid())
+  title       String
+  type        String        // "debt" (hutang) | "receivable" (piutang)
+  amount      Float
+  lender      String        // person you borrow from / lend to
+  dueDate     String?       // YYYY-MM-DD
+  familyId    String
+  family      Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  is_deleted  Boolean       @default(false)
+  deleted_at  DateTime?
+
+  installments Installment[]
+}
+
+model Installment {
+  id          String    @id @default(uuid())
+  debtId      String
+  debt        Debt      @relation(fields: [debtId], references: [id], onDelete: Cascade)
+  amount      Float
+  paymentDate String    // YYYY-MM-DD
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  is_deleted  Boolean   @default(false)
+  deleted_at  DateTime?
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String   // "info" | "warning" | "alert"
+  isRead    Boolean  @default(false)
+  familyId  String
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  action      String   // "CREATE", "UPDATE", "DELETE", "RESTORE", "WIPE", "LOGIN"
+  tableName   String
+  recordId    String
+  userId      String   // Email or Name of the user
+  description String
+  familyId    String
+  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  timestamp   DateTime @default(now())
+}

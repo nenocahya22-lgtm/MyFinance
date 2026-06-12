@@ -455,6 +455,41 @@ app.post("/api/sync/restore", authenticateToken, requireRole(...RESTORE_ROLES), 
   }
 });
 
+// Get online family members
+app.get("/api/sync/members", authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const members = await prisma.familyMember.findMany({
+      where: { code: user.code, isOnline: true },
+      select: { userId: true, role: true, lastSeen: true },
+    });
+    res.json({ members });
+  } catch (err: any) {
+    console.error("[Members Error]", err);
+    res.status(500).json({ error: "Gagal mengambil data anggota" });
+  }
+});
+
+// Get activity logs (polling-friendly)
+app.get("/api/sync/activity", authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const since = req.query.since ? new Date(req.query.since as string) : new Date(0);
+    const logs = await prisma.auditLog.findMany({
+      where: {
+        code: user.code,
+        timestamp: { gte: since },
+      },
+      orderBy: { timestamp: "desc" },
+      take: 50,
+    });
+    res.json({ logs });
+  } catch (err: any) {
+    console.error("[Activity Error]", err);
+    res.status(500).json({ error: "Gagal mengambil aktivitas" });
+  }
+});
+
 // 404 handler
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: "Rute tidak ditemukan" });

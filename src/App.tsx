@@ -42,11 +42,8 @@ import DebtInstallmentTracker, { DebtItem } from './components/DebtInstallmentTr
 import NotificationBell, { AppNotification } from './components/NotificationBell';
 import ToastContainer from './components/ToastContainer';
 import { exportTransactionsToExcel, exportTransactionsToPDF } from './utils/exportHelpers';
-import { io } from 'socket.io-client';
+import { io }
 import { hashSHA256 } from './utils/crypto';
-
-
-
 // Initial default buckets with EXACTLY 0 IDR allocated (keep valid empty status initially)
 const DEFAULT_BUCKETS: AllocationBucket[] = [];
 
@@ -147,9 +144,7 @@ export default function App() {
 
   const [onlineMembers, setOnlineMembers] = useState<{ userId: string; role: string; socketId: string }[]>([]);
   const [activityHistory, setActivityHistory] = useState<any[]>([]);
-  const socketRef = useRef<any>(null);
-
-  // Real-time domestic syncing states
+// Real-time domestic syncing states
   const [syncCode, setSyncCode] = useState<string>(() => {
     return localStorage.getItem('keuangan_sync_code') || '';
   });
@@ -398,79 +393,72 @@ export default function App() {
     }
   }, [debts]);
 
-  // Real-time synchronization via Socket.IO client
-  useEffect(() => {
-    const token = localStorage.getItem('keuangan_sync_token');
-    if (!syncCode || !token) {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-      setOnlineMembers([]);
-      return;
-    }
-
-    console.log('[Socket.IO] Initializing real-time sync for Family ID:', syncCode);
-    const socket = io({
-      auth: { token }
-    });
-
-    socketRef.current = socket;
-
-    socket.on('connect', () => {
-      console.log('[Socket.IO] Connected successfully');
-      setSyncError('');
-    });
-
-    socket.on('sync_pull', (data: any) => {
-      if (data.group) {
-        const { transactions: sTx, buckets: sB, accounts: sAcc, debtData: sDebt, updatedAt: sUpdatedAt } = data.group;
-        isSyncingFromServerRef.current = true;
-        setTransactions(sTx || []);
-        setBuckets(sB || []);
-        if (sAcc && Array.isArray(sAcc)) {
-          setAccounts(sAcc);
-        }
-        if (sDebt && Array.isArray(sDebt)) {
-          setDebts(sDebt);
-        }
-        setLocalLastUpdatedAt(sUpdatedAt);
-        setLastSyncedTime(new Date(sUpdatedAt).toLocaleTimeString('id-ID'));
-      }
-    });
-
-    socket.on('notification', (data: any) => {
-      addToast(data.type || 'info', data.title, data.message);
-    });
-
-    socket.on('family_members_status', (members: any[]) => {
-      setOnlineMembers(members);
-    });
-
-    socket.on('activity_history', (history: any[]) => {
-      setActivityHistory(history);
-    });
-
-    socket.on('activity_logged', (log: any) => {
-      setActivityHistory(prev => [log, ...prev].slice(0, 50));
-    });
-
-    socket.on('connect_error', (err: any) => {
-      console.error('[Socket.IO] Connection error:', err);
-      setSyncError('Koneksi terganggu. Mencoba memulihkan hubungan real-time...');
-    });
-
-    return () => {
-      socket.disconnect();
-      socketRef.current = null;
-    };
-  }, [syncCode]);
-
-  // Sync update to server when local content is altered (debounced slightly to prevent overlapping runs)
+  // Polling: sync data dari server setiap 4 detik
   useEffect(() => {
     if (!syncCode) return;
     
-    // If state change comes from a Socket.IO push, prevent self-feedback loop
+    const interval = setInterval(() => {
+      fetchLatestData();
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [syncCode]);
+
+  // Polling: anggota online setiap 10 detik
+  useEffect(() => {
+    if (!syncCode) return;
+
+    const fetchMembers = async () => {
+      try {
+        const token = localStorage.getItem('keuangan_sync_token');
+        if (!token) return;
+        const res = await fetch('/api/sync/members', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setOnlineMembers(data.members || []);
+      } catch {}
+    };
+
+    fetchMembers();
+    const interval = setInterval(fetchMembers, 10000);
+    return () => clearInterval(interval);
+  }, [syncCode]);
+
+  // Polling: aktivitas keluarga setiap 15 detik
+  useEffect(() => {
+    if (!syncCode) return;
+
+    const fetchActivity = async () => {
+      try {
+        const token = localStorage.getItem('keuangan_sync_token');
+        if (!token) return;
+        const since = lastActivityFetchRef.current;
+        const res = await fetch('/api/sync/activity?since=' + encodeURIComponent(since), {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.logs && data.logs.length > 0) {
+          setActivityHistory(prev => {
+            const existing = new Set(prev.map(l => l.id));
+            const newLogs = data.logs.filter((l) => !existing.has(l.id));
+            return [...newLogs, ...prev].slice(0, 50);
+          });
+          lastActivityFetchRef.current = new Date().toISOString();
+        }
+      } catch {}
+    };
+
+    fetchActivity();
+    const interval = setInterval(fetchActivity, 15000);
+    return () => clearInterval(interval);
+  }, [syncCode]);  // Sync update to server when local content is altered (debounced slightly to prevent overlapping runs)
+  useEffect(() => {
+    if (!syncCode) return;
+    
+    // If state change comes from a polling/auto-join push, prevent self-feedback loop
     if (isSyncingFromServerRef.current) {
       isSyncingFromServerRef.current = false;
       return;

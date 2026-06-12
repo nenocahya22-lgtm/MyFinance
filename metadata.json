@@ -1,0 +1,6 @@
+{
+  "name": "Keuangan Rumah Tangga",
+  "description": "Aplikasi pencatatan uang masuk dan uang keluar rumah tangga dengan hitungan total saldo akhir.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

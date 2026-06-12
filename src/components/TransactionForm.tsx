@@ -288,7 +288,7 @@ export default function TransactionForm({ accounts, buckets, selectedMonth, onAd
         {/* Allocation Pocket selector */}
         <div>
           <label htmlFor="select-transaction-bucket" className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-            <Layers className="w-3.5 h-3.5 text-indigo-505 text-indigo-500" />
+            <Layers className="w-3.5 h-3.5 text-indigo-500" />
             Alokasikan ke Kantong/Saku <span className="text-slate-400 font-medium">(Opsional)</span>
           </label>
           <select

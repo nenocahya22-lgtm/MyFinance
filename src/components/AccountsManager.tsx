@@ -79,13 +79,13 @@ export default function AccountsManager({
   };
 
   const colorClasses: Record<string, { bg: string; border: string; text: string; bgBadge: string }> = {
-    blue: { bg: 'bg-blue-50', border: 'border-blue-150 border-blue-200', text: 'text-blue-700', bgBadge: 'bg-blue-500' },
-    emerald: { bg: 'bg-emerald-50', border: 'border-emerald-150 border-emerald-200', text: 'text-emerald-700', bgBadge: 'bg-emerald-500' },
-    amber: { bg: 'bg-amber-50', border: 'border-amber-150 border-amber-200', text: 'text-amber-700', bgBadge: 'bg-amber-500' },
-    purple: { bg: 'bg-purple-50', border: 'border-purple-150 border-purple-200', text: 'text-purple-700', bgBadge: 'bg-purple-500' },
-    cyan: { bg: 'bg-cyan-50', border: 'border-cyan-150 border-cyan-200', text: 'text-cyan-700', bgBadge: 'bg-cyan-500' },
-    indigo: { bg: 'bg-indigo-50', border: 'border-indigo-150 border-indigo-200', text: 'text-indigo-700', bgBadge: 'bg-indigo-500' },
-    rose: { bg: 'bg-rose-50', border: 'border-rose-150 border-rose-200', text: 'text-rose-700', bgBadge: 'bg-rose-500' },
+    blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', bgBadge: 'bg-blue-500' },
+    emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', bgBadge: 'bg-emerald-500' },
+    amber: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', bgBadge: 'bg-amber-500' },
+    purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', bgBadge: 'bg-purple-500' },
+    cyan: { bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-700', bgBadge: 'bg-cyan-500' },
+    indigo: { bg: 'bg-indigo-50', border: 'border-indigo-200', text: 'text-indigo-700', bgBadge: 'bg-indigo-500' },
+    rose: { bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700', bgBadge: 'bg-rose-500' },
   };
 
   const handleCreateAccount = (e: React.FormEvent) => {
@@ -289,7 +289,7 @@ export default function AccountsManager({
       {showAddForm && (
         <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 md:p-6 space-y-4 animate-fade-in relative">
           <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <PlusCircle className="w-4 h-4 text-indigo-505 text-indigo-600" />
+            <PlusCircle className="w-4 h-4 text-indigo-600" />
             Tambah Rekening / Penyimpanan Baru
           </h3>
 
@@ -313,10 +313,10 @@ export default function AccountsManager({
                 onChange={(e) => setBalanceType(e.target.value as any)}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-hidden"
               >
-                <option value="bank font-bold">🏦 Bank (M-Banking)</option>
-                <option value="cash font-bold">💵 Cash / Tunai Fisik</option>
-                <option value="e-wallet font-bold">📱 e-Wallet / QRIS</option>
-                <option value="other font-bold">💳 Kartu / Lainnya</option>
+                <option value="bank">🏦 Bank (M-Banking)</option>
+                <option value="cash">💵 Cash / Tunai Fisik</option>
+                <option value="e-wallet">📱 e-Wallet / QRIS</option>
+                <option value="other">💳 Kartu / Lainnya</option>
               </select>
             </div>
 

@@ -132,7 +132,6 @@ export default function AllocationBuckets({
       targetAmount: parsedTarget,
       color: newBucketColor,
       icon: newBucketIcon,
-      category: 'umum'
     });
 
     // Reset Form

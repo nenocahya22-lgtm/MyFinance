@@ -169,7 +169,7 @@ export default function DebtInstallmentTracker({
 
         {/* Card 2: Receivables (Piutang / Tagihan ke Orang Lain) */}
         <div className="bg-emerald-50 border border-emerald-100 p-4.5 rounded-2xl flex items-center gap-4 shadow-3xs">
-          <div className="w-12 h-12 rounded-xl bg-emerald-55 bg-emerald-500 text-white flex items-center justify-center shadow-sm">
+          <div className="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-sm">
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
@@ -399,8 +399,8 @@ export default function DebtInstallmentTracker({
                     {it.title}
                   </h4>
                   {it.notes && (
-                    <p className="text-[10px] text-slate-450 italic mt-0.5 line-clamp-2">
-                      "{it.notes}"
+                    <p className="text-[10px] text-slate-500 italic mt-0.5 line-clamp-2">
+                      {it.notes}
                     </p>
                   )}
 
@@ -418,7 +418,7 @@ export default function DebtInstallmentTracker({
                           it.type === 'debt' 
                             ? 'bg-rose-500' 
                             : it.type === 'receivable'
-                            ? 'bg-emerald-55 bg-emerald-500'
+                            ? 'bg-emerald-500'
                             : 'bg-indigo-500'
                         }`}
                         style={{ width: `${progress}%` }}

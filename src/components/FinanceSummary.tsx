@@ -84,7 +84,7 @@ export default function FinanceSummary({ summary, transactionCount, incomeCount,
                 {formatRupiah(summary.unallocatedBalance)}
               </h3>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-indigo-55 bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
               <Wallet className="w-4 h-4" />
             </div>
           </div>

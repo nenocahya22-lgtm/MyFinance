@@ -8,21 +8,20 @@
 
 /* Custom visual style overrides */
 body {
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: #f8fafc; /* Cool slate background */
+  color: #1e293b; /* Dark slate text */
   font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Safe area for notched phones (iPhone X+) */
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Smooth transitions for theme switching - applied only to root elements */
-html.dark, html:not(.dark) {
-  transition: background-color 200ms ease;
+@keyframes slide-up {
+  0% {
+    transform: translateY(1rem) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes slide-up {
@@ -44,12 +43,35 @@ html.dark, html:not(.dark) {
   60% { transform: rotate(-5deg); }
 }
 
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes scale-in {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 .animate-slide-up {
   animation: slide-up 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .animate-swing {
   animation: swing 1.8s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -64,4 +86,30 @@ html.dark, html:not(.dark) {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #cbd5e1;
+}
+
+/* Better tap targets on mobile */
+@media (max-width: 640px) {
+  button, a, select, input, [role="button"] {
+    min-height: 44px;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  nav, footer, #sync-setup-panel, #security-config-modal-backdrop {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+}
+
+/* Smooth page transitions */
+#root {
+  animation: fade-in 0.2s ease-out;
 }

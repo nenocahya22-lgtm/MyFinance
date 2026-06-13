@@ -42,7 +42,6 @@ import DebtInstallmentTracker, { DebtItem } from './components/DebtInstallmentTr
 import NotificationBell, { AppNotification } from './components/NotificationBell';
 import ToastContainer from './components/ToastContainer';
 import { exportTransactionsToExcel, exportTransactionsToPDF } from './utils/exportHelpers';
-import { io }
 import { hashSHA256 } from './utils/crypto';
 // Initial default buckets with EXACTLY 0 IDR allocated (keep valid empty status initially)
 const DEFAULT_BUCKETS: AllocationBucket[] = [];

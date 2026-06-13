@@ -17,12 +17,15 @@
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
-    "@tailwindcss/vite": "^4.0.0",
+    "@tailwindcss/vite": "^4.3.1",
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
-    "socket.io": "^4.8.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "prisma": "^6.0.0",
+    "socket.io": "^4.8.0",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-@import "tailwindcss";
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -11,17 +11,6 @@ body {
   background-color: #f8fafc; /* Cool slate background */
   color: #1e293b; /* Dark slate text */
   font-family: var(--font-sans);
-}
-
-@keyframes slide-up {
-  0% {
-    transform: translateY(1rem) scale(0.96);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
 }
 
 @keyframes slide-up {

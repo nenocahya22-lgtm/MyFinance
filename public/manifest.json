@@ -1,21 +1,14 @@
 {
+  "name": "SakuKeluarga - Finansial Keluarga",
   "short_name": "SakuKeluarga",
-  "name": "SakuKeluarga - Keuangan Keluarga Multi-User",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/2953/2953423.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/2953/2953423.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
+  "description": "Aplikasi keuangan keluarga — catat pemasukan, pengeluaran, dan alokasi dana bersama",
   "start_url": "/",
-  "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
   "display": "standalone",
-  "orientation": "portrait"
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "https://cdn-icons-png.flaticon.com/512/2953/2953423.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "https://cdn-icons-png.flaticon.com/512/2953/2953423.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }

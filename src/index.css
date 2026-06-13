@@ -1,104 +1,190 @@
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
+@import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Revolut-inspired palette */
+  --color-canvas-dark: #000000;
+  --color-canvas-light: #ffffff;
+  --color-surface-soft: #f4f4f4;
+  --color-surface-card: #ffffff;
+  --color-surface-deep: #0a0a0a;
+  --color-surface-elevated: #16181a;
+
+  /* Brand */
+  --color-primary: #494fdf;
+  --color-primary-bright: #4f55f1;
+  --color-primary-deep: #3a40c4;
+  --color-on-primary: #ffffff;
+
+  /* Text */
+  --color-ink: #191c1f;
+  --color-body: #1f2226;
+  --color-charcoal: #3a3d40;
+  --color-mute: #505a63;
+  --color-ash: #5c5e60;
+  --color-stone: #8d969e;
+  --color-faint: #c9c9cd;
+  --color-on-dark: #ffffff;
+  --color-on-dark-mute: rgba(255, 255, 255, 0.72);
+
+  /* Hairlines */
+  --color-hairline-light: #e2e2e7;
+  --color-hairline-dark: rgba(255, 255, 255, 0.12);
+  --color-hairline-strong: #191c1f;
+
+  /* Semantic */
+  --color-accent-teal: #00a87e;
+  --color-accent-light-blue: #007bc2;
+  --color-accent-blue-link: #376cd5;
+  --color-accent-light-green: #428619;
+  --color-accent-green-text: #006400;
+  --color-accent-yellow: #b09000;
+  --color-accent-warning: #ec7e00;
+  --color-accent-pink: #e61e49;
+  --color-accent-danger: #e23b4a;
+  --color-accent-deep-red: #8b0000;
+  --color-accent-brown: #936d62;
+  --color-link: #376cd5;
+
+  /* Custom slate shades (backward compat) */
+  --color-slate-150: #eef2f6;
+  --color-slate-205: #dde3e9;
+  --color-slate-350: #b0b8c4;
+  --color-slate-450: #8e97a6;
+  --color-slate-505: #7a8495;
+  --color-slate-650: #525c6e;
+  --color-slate-805: #303647;
+  --color-slate-850: #262c3a;
+  --color-slate-855: #212735;
+
+  /* Shadows */
+  --shadow-3xs: 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-2xs: 0 1px 3px -1px rgb(0 0 0 / 0.08);
 }
 
-/* Custom visual style overrides */
 body {
-  background-color: #f8fafc; /* Cool slate background */
-  color: #1e293b; /* Dark slate text */
+  background-color: var(--color-canvas-light);
+  color: var(--color-ink);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Animations ── */
 @keyframes slide-up {
-  0% {
-    transform: translateY(1rem) scale(0.96);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
+  0% { transform: translateY(1rem) scale(0.96); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
 }
-
-@keyframes swing {
-  0%, 100% { transform: rotate(0deg); }
-  15% { transform: rotate(10deg); }
-  30% { transform: rotate(-10deg); }
-  45% { transform: rotate(5deg); }
-  60% { transform: rotate(-5deg); }
-}
-
 @keyframes fade-in {
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
-
 @keyframes scale-in {
   0% { transform: scale(0.92); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
-
 @keyframes pulse-soft {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
-
-.animate-slide-up {
-  animation: slide-up 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 8px rgb(79 70 229 / 0.2); }
+  50% { box-shadow: 0 0 20px rgb(79 70 229 / 0.4); }
 }
 
-.animate-swing {
-  animation: swing 1.8s ease-in-out infinite;
+.animate-slide-up { animation: slide-up 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-fade-in { animation: fade-in 0.25s ease-out forwards; }
+.animate-scale-in { animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-shimmer { background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent); background-size: 200% 100%; animation: shimmer 2s infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-glow { animation: glow 2s ease-in-out infinite; }
+
+/* ── Scrollbar ── */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e2e7; border-radius: 99px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #c9c9cd; }
+
+/* ── Revolut-style pill button ── */
+.btn-primary {
+  background: var(--color-canvas-light);
+  color: var(--color-canvas-dark);
+  border-radius: 9999px;
+  padding: 14px 28px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.24px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s;
+}
+.btn-primary:hover { background: var(--color-faint); }
+
+.btn-dark {
+  background: var(--color-canvas-dark);
+  color: var(--color-on-dark);
+  border-radius: 9999px;
+  padding: 14px 28px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.24px;
+  cursor: pointer;
+  border: none;
 }
 
-.animate-fade-in {
-  animation: fade-in 0.25s ease-out forwards;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
+.btn-outline-dark {
   background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 99px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  color: var(--color-on-dark);
+  border: 1px solid var(--color-on-dark);
+  border-radius: 9999px;
+  padding: 13px 27px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.24px;
+  cursor: pointer;
 }
 
-/* Better tap targets on mobile */
+/* ── Chat bubble styles ── */
+.chat-bubble-self {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: 20px 20px 4px 20px;
+}
+.chat-bubble-other {
+  background: var(--color-surface-soft);
+  color: var(--color-ink);
+  border-radius: 20px 20px 20px 4px;
+}
+.chat-bubble-system {
+  background: transparent;
+  color: var(--color-stone);
+  text-align: center;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ── Mobile tap targets ── */
 @media (max-width: 640px) {
-  button, a, select, input, [role="button"] {
-    min-height: 44px;
-  }
-  
-  .mobile-full-width {
-    width: 100% !important;
-  }
+  button, a, select, input, [role="button"] { min-height: 44px; }
 }
 
-/* Print styles */
+/* ── Print ── */
 @media print {
-  nav, footer, #sync-setup-panel, #security-config-modal-backdrop {
-    display: none !important;
-  }
-  body {
-    background: white !important;
-  }
+  #chat-panel, #family-panel, nav, footer, #security-config-modal-backdrop { display: none !important; }
+  body { background: white !important; }
 }
 
-/* Smooth page transitions */
-#root {
-  animation: fade-in 0.2s ease-out;
-}
+#root { animation: fade-in 0.2s ease-out; }

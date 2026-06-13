@@ -30,6 +30,8 @@ import {
   Pencil
 } from 'lucide-react';
 import { Transaction, TransactionType, AllocationBucket, FinanceSummaryData, Account } from './types';
+import ChatPanel from './components/ChatPanel';
+import FamilyMembersPanel from './components/FamilyMembersPanel';
 import TransactionForm from './components/TransactionForm';
 import FinanceSummary from './components/FinanceSummary';
 import TransactionsTable from './components/TransactionsTable';
@@ -157,6 +159,10 @@ export default function App() {
   const [syncMessage, setSyncMessage] = useState<string>('');
   const [showSyncPanel, setShowSyncPanel] = useState<boolean>(false);
   const [showNewMForm, setShowNewMForm] = useState<boolean>(false);
+  const [authToken, setAuthToken] = useState<string>(() => localStorage.getItem('keuangan_sync_token') || '');
+  const [authUserId, setAuthUserId] = useState<string>('');
+  const [authRole, setAuthRole] = useState<string>('ANGGOTA');
+  const [showFamilyPanel, setShowFamilyPanel] = useState(false);
   const [newMonthInput, setNewMonthInput] = useState<string>(() => {
     // default to next month
     const d = new Date();
@@ -342,7 +348,7 @@ export default function App() {
       const data = await res.json();
       if (data.token) {
         localStorage.setItem('keuangan_sync_token', data.token);
-        console.log('[Auth] ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ JWT token berhasil didapat untuk room:', roomCode);
+        console.log('[Auth]  JWT token berhasil didapat untuk room:', roomCode);
       }
       if (data.group) {
         const { transactions: sTx, buckets: sB, accounts: sAcc, debtData: sDebt, updatedAt: sUpdatedAt } = data.group;
@@ -391,6 +397,19 @@ export default function App() {
       console.error('Gagal menyimpan Hutang-Piutang:', e);
     }
   }, [debts]);
+
+  // Decode JWT to get current user info
+  useEffect(() => {
+    const token = localStorage.getItem('keuangan_sync_token');
+    if (token) {
+      setAuthToken(token);
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.userId) setAuthUserId(payload.userId);
+        if (payload.role) setAuthRole(payload.role);
+      } catch {}
+    }
+  }, [syncCode]);
 
   // Polling: sync data dari server setiap 4 detik
   useEffect(() => {
@@ -762,7 +781,7 @@ export default function App() {
       id: `b-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     };
     setBuckets((prev) => [...prev, newBucket]);
-    addToast('success', 'Saku Baru Dibuat ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â½ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¯', `Kantong Saku "${bucketData.name}" siap dialokasikan anggaran.`);
+    addToast('success', 'Saku Baru Dibuat ', `Kantong Saku "${bucketData.name}" siap dialokasikan anggaran.`);
   };
 
   // Handle deleting bucket (transfers associated tx back to "umum")
@@ -772,7 +791,7 @@ export default function App() {
     setTransactions((prev) => 
       prev.map((tx) => tx.bucketId === id ? { ...tx, bucketId: 'umum' } : tx)
     );
-    addToast('warning', 'Saku Alokasi Dihapus ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â', `Saku "${target?.name || ''}" dihapus. Riwayat transaksi dialihkan ke Saku Utama.`);
+    addToast('warning', 'Saku Alokasi Dihapus ', `Saku "${target?.name || ''}" dihapus. Riwayat transaksi dialihkan ke Saku Utama.`);
   };
 
   // Handle updating an existing custom bucket
@@ -780,7 +799,7 @@ export default function App() {
     setBuckets((prev) =>
       prev.map((b) => (b.id === id ? { ...b, ...updatedData } : b))
     );
-    addToast('success', 'Saku Diperbarui ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â', `Perubahan informasi Saku "${updatedData.name}" berhasil disimpan.`);
+    addToast('success', 'Saku Diperbarui ', `Perubahan informasi Saku "${updatedData.name}" berhasil disimpan.`);
   };
 
   // Handle updating an existing account / wallet
@@ -788,7 +807,7 @@ export default function App() {
     setAccounts((prev) =>
       prev.map((acc) => (acc.id === id ? { ...acc, ...updatedData } : acc))
     );
-    addToast('success', 'Rekening Diperbarui ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³', `Informasi penyimpanan "${updatedData.name || 'Rekening'}" berhasil disesuaikan.`);
+    addToast('success', 'Rekening Diperbarui ', `Informasi penyimpanan "${updatedData.name || 'Rekening'}" berhasil disesuaikan.`);
   };
 
   // Handle adding a new bookkeeping month
@@ -802,7 +821,7 @@ export default function App() {
     const [yr, mt] = yrMonth.split('-');
     const mNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const name = mNames[parseInt(mt, 10) - 1] || mt;
-    addToast('success', 'Buku Baru Dimulai ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œ', `Lembar pembukuan periode ${name} ${yr} telah ditambahkan.`);
+    addToast('success', 'Buku Baru Dimulai ', `Lembar pembukuan periode ${name} ${yr} telah ditambahkan.`);
   };
 
   // Handle deleting a bookkeeping month
@@ -817,7 +836,7 @@ export default function App() {
       if (selectedMonth === yrMonth) {
         setSelectedMonth(remaining[0] || 'all');
       }
-      addToast('warning', 'Buku Bulanan Dihapus ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â', `Periode ${yrMonth} dibersihkan dari daftar pembukuan cepat.`);
+      addToast('warning', 'Buku Bulanan Dihapus ', `Periode ${yrMonth} dibersihkan dari daftar pembukuan cepat.`);
     }
   };
 
@@ -978,7 +997,7 @@ export default function App() {
     setTransactions((prev) => [newTx, ...prev]);
 
     const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(data.amount);
-    const label = data.type === 'income' ? 'Pemasukan ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã¢â‚¬Â¹ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ' : 'Pengeluaran ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â°';
+    const label = data.type === 'income' ? 'Pemasukan ' : 'Pengeluaran ';
     addToast('success', `${label} Berhasil Dicatat`, `${data.description} senilai ${formattedVal} ditambahkan ke sistem.`);
   };
 
@@ -989,7 +1008,7 @@ export default function App() {
       id: `acc-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     };
     setAccounts((prev) => [...prev, newAcc]);
-    addToast('success', 'Rekening Ditambahkan ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³', `Akun penyimpanan "${accData.name}" siap digunakan.`);
+    addToast('success', 'Rekening Ditambahkan ', `Akun penyimpanan "${accData.name}" siap digunakan.`);
   };
 
   const handleDeleteAccount = (id: string) => {
@@ -998,10 +1017,10 @@ export default function App() {
     
     if (updatedAccounts.length === 0) {
       setAccounts(DEFAULT_ACCOUNTS);
-      addToast('info', 'Penyimpanan Direset ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œ', 'Penyimpanan telah dibersihkan kembali ke "Dompet Utama" kosong.');
+      addToast('info', 'Penyimpanan Direset ', 'Penyimpanan telah dibersihkan kembali ke "Dompet Utama" kosong.');
     } else {
       setAccounts(updatedAccounts);
-      addToast('warning', 'Rekening Dihapus ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â', `Akun penyimpanan "${target?.name || ''}" telah dibersihkan dari sistem.`);
+      addToast('warning', 'Rekening Dihapus ', `Akun penyimpanan "${target?.name || ''}" telah dibersihkan dari sistem.`);
     }
 
     setTransactions((prev) =>
@@ -1033,7 +1052,7 @@ export default function App() {
 
     setTransactions((prev) => [newTx, ...prev]);
     const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-    addToast('success', 'Transfer Rekening Berhasil ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾', `Dana ${formattedVal} dipindahkan dari ${fromAcc.name} ke ${toAcc.name}.`);
+    addToast('success', 'Transfer Rekening Berhasil ', `Dana ${formattedVal} dipindahkan dari ${fromAcc.name} ke ${toAcc.name}.`);
   };
 
   // Internal wallet allocation transfer (Saku Utama -> Saku Alokasi)
@@ -1066,7 +1085,7 @@ export default function App() {
 
     setTransactions((prev) => [txIn, txOut, ...prev]);
     const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-    addToast('success', 'Alokasi Saku Sukses ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â½', `Dana ${formattedVal} dialokasikan ke saku "${targetBucket.name}".`);
+    addToast('success', 'Alokasi Saku Sukses ', `Dana ${formattedVal} dialokasikan ke saku "${targetBucket.name}".`);
   };
 
   // Withdraw money from a pocket back to Saku Utama
@@ -1099,7 +1118,7 @@ export default function App() {
 
     setTransactions((prev) => [txIn, txOut, ...prev]);
     const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-    addToast('info', 'Saldo Saku Ditarik ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡', `Dana ${formattedVal} dikembalikan dari saku "${sourceBucket.name}" ke Kas Saku Utama.`);
+    addToast('info', 'Saldo Saku Ditarik ', `Dana ${formattedVal} dikembalikan dari saku "${sourceBucket.name}" ke Kas Saku Utama.`);
   };
 
   // Record an expense directly from a pocket
@@ -1117,7 +1136,7 @@ export default function App() {
     };
     setTransactions((prev) => [newTx, ...prev]);
     const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-    addToast('warning', 'Belanja Langsung Saku ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚ÂºÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â', `Dana Saku "${bucketName}" dipakai belanja ${formattedVal} untuk ${description}.`);
+    addToast('warning', 'Belanja Langsung Saku ', `Dana Saku "${bucketName}" dipakai belanja ${formattedVal} untuk ${description}.`);
   };
 
   // Record an income directly to a pocket
@@ -1135,14 +1154,14 @@ export default function App() {
     };
     setTransactions((prev) => [newTx, ...prev]);
     const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-    addToast('success', 'Pendapatan Saku Dicatat ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã¢â‚¬Â¹ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ', `Menambah saldo Saku "${bucketName}" senilai ${formattedVal}.`);
+    addToast('success', 'Pendapatan Saku Dicatat ', `Menambah saldo Saku "${bucketName}" senilai ${formattedVal}.`);
   };
 
   // Delete transaction card
   const handleDeleteTransaction = (id: string) => {
     const target = transactions.find(t => t.id === id);
     setTransactions((prev) => prev.filter((tx) => tx.id !== id));
-    addToast('info', 'Catatan Dihapus ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â', `Transaksi "${target?.description || ''}" berhasil dibersihkan.`);
+    addToast('info', 'Catatan Dihapus ', `Transaksi "${target?.description || ''}" berhasil dibersihkan.`);
   };
 
   // Clear all database back to virgin empty state
@@ -1150,7 +1169,7 @@ export default function App() {
     setTransactions([]);
     setBuckets(DEFAULT_BUCKETS);
     setAccounts(DEFAULT_ACCOUNTS);
-    addToast('error', 'Hapus Seluruh Data ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨', 'Seluruh riwayat pencatatan transaksi, rekening, dan saku alokasi Anda telah dibersihkan!');
+    addToast('error', 'Hapus Seluruh Data ', 'Seluruh riwayat pencatatan transaksi, rekening, dan saku alokasi Anda telah dibersihkan!');
   };
 
   // CSV Export for Pandas-compliance
@@ -1228,6 +1247,17 @@ export default function App() {
 
           {/* Export & Security Actions Box */}
           <div className="flex flex-wrap items-center gap-2 border-slate-100 sm:border-l sm:pl-3">
+            {/* Family Members */}
+            {syncCode && (
+              <button
+                onClick={() => setShowFamilyPanel(true)}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-xs font-bold bg-[#000] text-white hover:bg-[#16181a] transition-all cursor-pointer border border-[#000]"
+                title="Anggota Keluarga"
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Keluarga</span>
+              </button>
+            )}
             {/* Notification Bell */}
             <NotificationBell
               notifications={notifications}
@@ -1470,7 +1500,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="text-[11px] text-slate-400 space-y-1 font-medium bg-slate-50 border border-slate-100 p-3.5 rounded-2xl">
-                    <span className="font-bold text-slate-600 uppercase block text-3xs tracking-wider">ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ PETUNJUK KONEKSI:</span>
+                    <span className="font-bold text-slate-600 uppercase block text-3xs tracking-wider"> PETUNJUK KONEKSI:</span>
                     <p className="leading-snug">
                       1. Gunakan mode <strong>Hubungkan Instan</strong> untuk uji coba instan dengan mengetik alamat email Google yang sama pada 2 device berbeda.
                     </p>
@@ -1645,7 +1675,7 @@ export default function App() {
                             : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
-                        ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ Hubungkan Instan
+                         Hubungkan Instan
                       </button>
                       <button
                         type="button"
@@ -1660,7 +1690,7 @@ export default function App() {
                             : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
-                        ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚ÂÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â Google OAuth Resmi
+                         Google OAuth Resmi
                       </button>
                     </div>
 
@@ -1814,7 +1844,7 @@ export default function App() {
                         {/* Client ID Configuration gear setting */}
                         <div className="bg-white/40 border border-slate-200 p-3 rounded-xl space-y-2">
                           <label htmlFor="client-id-cfg" className="block text-[9px] font-black text-slate-500 uppercase tracking-wider">
-                            ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â Google Client ID Kustom (Opsional)
+                             Google Client ID Kustom (Opsional)
                           </label>
                           <input
                             id="client-id-cfg"
@@ -1878,7 +1908,7 @@ export default function App() {
                     </span>
                     <div className="min-w-0">
                       <span className="font-extrabold text-slate-700 break-words">{log.userId}</span>
-                      <p className="text-slate-505 text-slate-500 font-medium leading-relaxed">{log.description}</p>
+                      <p className="text-slate-500 font-medium leading-relaxed">{log.description}</p>
                     </div>
                   </div>
                   <span className="text-[9px] font-bold text-slate-400 shrink-0 whitespace-nowrap">
@@ -2047,23 +2077,23 @@ export default function App() {
             onAddItem={(item) => {
               const updated = [item, ...debts];
               setDebts(updated);
-              addToast('success', 'Komitmen Dicatat ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸', `"${item.title}" ditambahkan ke buku hutang.`);
+              addToast('success', 'Komitmen Dicatat ', `"${item.title}" ditambahkan ke buku hutang.`);
             }}
             onUpdateItem={(id, updatedData) => {
               const updated = debts.map((d) => d.id === id ? { ...d, ...updatedData } : d);
               setDebts(updated);
               const target = debts.find((d) => d.id === id);
               if (updatedData.status === 'paid') {
-                addToast('success', 'Hutang Lunas ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â½ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â°', `Selamat! Tagihan "${target?.title}" dinyatakan lunas.`);
+                addToast('success', 'Hutang Lunas ', `Selamat! Tagihan "${target?.title}" dinyatakan lunas.`);
               } else {
-                addToast('info', 'Hutang Diperbarui ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾', `Pembayaran untuk "${target?.title}" telah diperbarui.`);
+                addToast('info', 'Hutang Diperbarui ', `Pembayaran untuk "${target?.title}" telah diperbarui.`);
               }
             }}
             onDeleteItem={(id) => {
               const target = debts.find((d) => d.id === id);
               const updated = debts.filter((d) => d.id !== id);
               setDebts(updated);
-              addToast('warning', 'Komitmen Dihapus ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â', `"${target?.title}" dibersihkan dari buku hutang.`);
+              addToast('warning', 'Komitmen Dihapus ', `"${target?.title}" dibersihkan dari buku hutang.`);
             }}
           />
         </section>
@@ -2099,7 +2129,7 @@ export default function App() {
       {/* Footer Branding - Clean & Humble to keep visual focus professional */}
       <footer id="app-footer" className="bg-white border-t border-slate-150/60 py-6 mt-16 text-center text-xs text-slate-400 font-medium shrink-0">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â© {new Date().getFullYear()} Finanku Rumah Tangga. Seluruh catatan tersimpan aman secara offline di browser perangkat Anda.</p>
+          <p>© {new Date().getFullYear()} Finanku Rumah Tangga. Seluruh catatan tersimpan aman secara offline di browser perangkat Anda.</p>
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-slate-100 font-extrabold text-slate-500 uppercase tracking-wider text-[10px]">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             Ledger Terverifikasi
@@ -2177,7 +2207,7 @@ export default function App() {
                   />
                   {hasPin && (
                     <p className="text-[10px] text-slate-400 font-medium leading-relaxed italic">
-                      ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ Saku Tip: Biarkan "PIN Baru" kosong lalu masukkan "PIN Saat Ini" untuk menonaktifkan gembok kunci layar.
+                       Saku Tip: Biarkan "PIN Baru" kosong lalu masukkan "PIN Saat Ini" untuk menonaktifkan gembok kunci layar.
                     </p>
                   )}
                 </div>
@@ -2215,7 +2245,7 @@ export default function App() {
                         placeholder="Contoh: Tahun pernikahan"
                         value={newHintInput}
                         onChange={(e) => setNewHintInput(e.target.value)}
-                        className="w-full px-4.5 py-2.5 bg-slate-50 border border-slate-100 border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-4"
+                        className="w-full px-4.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-4"
                       />
                     </div>
                   </>
@@ -2246,7 +2276,7 @@ export default function App() {
                     setShowSecurityModal(false);
                     resetModalFields();
                   }}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-650 text-slate-600 hover:bg-slate-50 cursor-pointer text-center"
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer text-center"
                 >
                   Batal
                 </button>
@@ -2280,7 +2310,7 @@ export default function App() {
             toastBg = 'bg-amber-50/95 border-amber-200 backdrop-blur-md text-amber-950 shadow-lg shadow-amber-100/30';
             iconColor = 'text-amber-700 bg-amber-100/80 border-amber-200';
           } else if (toast.type === 'info') {
-            toastBg = 'bg-dense-indigo bg-slate-900/95 border-slate-800 backdrop-blur-md text-white shadow-lg shadow-slate-900/40';
+            toastBg = 'bg-slate-900/95 border-slate-800 backdrop-blur-md text-white shadow-lg shadow-slate-900/40';
             iconColor = 'text-indigo-400 bg-slate-800 border-slate-700';
           } else if (toast.type === 'error') {
             toastBg = 'bg-rose-50/95 border-rose-200 backdrop-blur-md text-rose-950 shadow-lg shadow-rose-100/30';
@@ -2294,14 +2324,14 @@ export default function App() {
               className={`p-4 border rounded-2xl flex items-start gap-3 shadow-md pointer-events-auto transition-all animate-slide-up hover:scale-[1.01] ${toastBg}`}
             >
               <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border text-xs font-black ${iconColor}`}>
-                {toast.type === 'success' && 'ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“'}
-                {toast.type === 'warning' && 'ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â'}
-                {toast.type === 'info' && 'ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡'}
-                {toast.type === 'error' && 'ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨'}
+                {toast.type === 'success' && '✓'}
+                {toast.type === 'warning' && '⚠'}
+                {toast.type === 'info' && '💡'}
+                {toast.type === 'error' && '✕'}
               </div>
               <div className="flex-1 space-y-0.5">
                 <h4 className="text-xs font-black tracking-tight">{toast.title}</h4>
-                <p className="text-[11px] font-semibold opacity-85 leading-relaxed leading-normal">{toast.message}</p>
+                <p className="text-[11px] font-semibold opacity-85 leading-relaxed">{toast.message}</p>
               </div>
               <button 
                 onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
@@ -2313,6 +2343,25 @@ export default function App() {
           );
         })}
       </div>
+
+      {/* Chat & Family Members */}
+      {authToken && authUserId && (
+        <ChatPanel
+          token={authToken}
+          currentUser={authUserId}
+          currentName={authUserId.split('@')[0] || 'User'}
+          apiBase=""
+        />
+      )}
+      {showFamilyPanel && authToken && authUserId && (
+        <FamilyMembersPanel
+          token={authToken}
+          currentUser={authUserId}
+          currentRole={authRole}
+          apiBase=""
+          onClose={() => setShowFamilyPanel(false)}
+        />
+      )}
 
     </div>
   );

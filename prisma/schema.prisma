@@ -18,6 +18,8 @@ model SyncGroup {
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
   members      FamilyMember[]
+  users        FamilyUser[]
+  messages     ChatMessage[]
 }
 
 model FamilyMember {
@@ -29,6 +31,38 @@ model FamilyMember {
   lastSeen  DateTime @default(now())
   joinedAt  DateTime @default(now())
   group     SyncGroup @relation(fields: [code], references: [code])
+  @@unique([code, userId])
+}
+
+model FamilyUser {
+  id         String   @id @default(uuid())
+  code       String
+  username   String
+  password   String
+  name       String
+  role       String   @default("ANGGOTA")
+  createdAt  DateTime @default(now())
+  lastLogin  DateTime @default(now())
+  group      SyncGroup @relation(fields: [code], references: [code])
+  @@unique([code, username])
+}
+
+model ChatMessage {
+  id         String   @id @default(uuid())
+  code       String
+  senderId   String
+  senderName String
+  content    String
+  createdAt  DateTime @default(now())
+  group      SyncGroup @relation(fields: [code], references: [code])
+}
+
+model ChatNotification {
+  id       Int      @id @default(autoincrement())
+  code     String
+  userId   String
+  count    Int      @default(0)
+  lastRead DateTime @default(now())
   @@unique([code, userId])
 }
 

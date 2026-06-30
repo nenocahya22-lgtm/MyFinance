@@ -10,10 +10,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "tsx app.ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev --name init",
+    "db:studio": "prisma studio",
+    "setup": "prisma generate && prisma db push",
+    "start": "npm run setup && npm run server"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",

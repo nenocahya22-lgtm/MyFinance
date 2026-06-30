@@ -170,6 +170,56 @@ app.post('/api/auth/refresh', authenticateToken, (req: any, res) => {
 
 app.post('/api/auth/logout', (_req, res) => res.json({ success: true }));
 
+// Join existing family with code
+app.post('/api/auth/join', async (req, res) => {
+  try {
+    const { familyCode, username, password, name, role = 'ANGGOTA' } = req.body;
+    if (!familyCode || !username || !password) {
+      return res.status(400).json({ error: 'Kode keluarga, username & password wajib diisi' });
+    }
+    if (password.length < 4) {
+      return res.status(400).json({ error: 'Password minimal 4 karakter' });
+    }
+
+    const normalizedCode = familyCode.toUpperCase();
+    const group = await prisma.syncGroup.findUnique({ where: { code: normalizedCode } });
+    if (!group) {
+      return res.status(404).json({ error: 'Kode keluarga tidak ditemukan' });
+    }
+
+    const existing = await prisma.familyUser.findFirst({ where: { code: normalizedCode, username } });
+    if (existing) {
+      return res.status(400).json({ error: 'Username sudah digunakan di keluarga ini' });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    await prisma.familyUser.create({
+      data: { code: normalizedCode, username, password: hashed, name: name || username, role },
+    });
+    await prisma.familyMember.upsert({
+      where: { code_userId: { code: normalizedCode, userId: username } },
+      update: { role, isOnline: true },
+      create: { code: normalizedCode, userId: username, role },
+    });
+    await prisma.chatNotification.create({ data: { code: normalizedCode, userId: username, count: 0 } }).catch(() => {});
+
+    await prisma.chatMessage.create({
+      data: {
+        code: normalizedCode, senderId: 'SYSTEM', senderName: 'Sistem',
+        content: `Selamat datang, ${name || username}! Bergabung ke keluarga.`,
+      },
+    }).catch(() => {});
+
+    const token = jwt.sign({ code: normalizedCode, userId: username, role }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({
+      success: true, token,
+      user: { id: username, username, name: name || username, role, family: { code: normalizedCode } },
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Gagal bergabung: ' + (err?.message || '') });
+  }
+});
+
 // ──────────────────────────────────────────────
 // FAMILY MEMBER MANAGEMENT
 // ──────────────────────────────────────────────

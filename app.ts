@@ -499,8 +499,11 @@ app.use((_req: Request, res: Response) => {
 const PORT = parseInt(process.env.PORT || "3000", 10);
 
 if (process.env.NODE_ENV !== "test") {
-  httpServer.listen(PORT, () => {
+  httpServer.listen(PORT, "0.0.0.0", () => {
+    const host = process.env.HOST || "0.0.0.0";
     console.log(`🏠 Finanku Rumah Tangga Server berjalan di port ${PORT}`);
+    console.log(`   Akses dari HP: http://IP_LAPTOP:${PORT}`);
+    console.log(`   Akses lokal:   http://localhost:${PORT}`);
   });
 }
 

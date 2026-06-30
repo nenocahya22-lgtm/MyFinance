@@ -32,6 +32,8 @@ import {
 import { Transaction, TransactionType, AllocationBucket, FinanceSummaryData, Account } from './types';
 import ChatPanel from './components/ChatPanel';
 import FamilyMembersPanel from './components/FamilyMembersPanel';
+import AuthPage from './components/AuthPage';
+import SettingsPage from './components/SettingsPage';
 import TransactionForm from './components/TransactionForm';
 import FinanceSummary from './components/FinanceSummary';
 import TransactionsTable from './components/TransactionsTable';
@@ -162,6 +164,14 @@ export default function App() {
   const [authToken, setAuthToken] = useState<string>(() => localStorage.getItem('keuangan_sync_token') || '');
   const [authUserId, setAuthUserId] = useState<string>('');
   const [authRole, setAuthRole] = useState<string>('ANGGOTA');
+
+  // New auth system state (Register/Login)
+  const [authUser, setAuthUser] = useState<any>(() => {
+    try { return JSON.parse(localStorage.getItem('keuangan_sync_user') || 'null'); }
+    catch { return null; }
+  });
+  const [showAuthPage, setShowAuthPage] = useState(false);
+  const [showSettingsPage, setShowSettingsPage] = useState(false);
   const [showFamilyPanel, setShowFamilyPanel] = useState(false);
   const [newMonthInput, setNewMonthInput] = useState<string>(() => {
     // default to next month
@@ -397,6 +407,23 @@ export default function App() {
       console.error('Gagal menyimpan Hutang-Piutang:', e);
     }
   }, [debts]);
+
+  const handleFamilyAuth = (token: string, user: any) => {
+    setAuthUser(user);
+    setShowAuthPage(false);
+    if (user.family?.code) {
+      setSyncCode(user.family.code);
+      localStorage.setItem('keuangan_sync_code', user.family.code);
+    }
+    if (token) {
+      localStorage.setItem('keuangan_sync_token', token);
+      setAuthToken(token);
+      setAuthUserId(user.id || user.username);
+      setAuthRole(user.role);
+    }
+    // Trigger initial data pull
+    setTimeout(() => fetchLatestData(), 500);
+  };
 
   // Decode JWT to get current user info
   useEffect(() => {
@@ -1208,6 +1235,10 @@ export default function App() {
     document.body.removeChild(link);
   };
 
+  if (showAuthPage) {
+    return <AuthPage onAuth={handleFamilyAuth} />;
+  }
+
   if (isLocked) {
     return (
       <SecurityGate 
@@ -1258,6 +1289,16 @@ export default function App() {
                 <span className="hidden sm:inline">Keluarga</span>
               </button>
             )}
+            {/* Family Auth (Register/Login) */}
+            <button
+              onClick={() => setShowAuthPage(true)}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-all border border-indigo-600 cursor-pointer"
+              title={authUser ? `${authUser.name} - ${authUser.role}` : 'Buat atau masuk ke keluarga'}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{authUser ? authUser.name?.split(' ')[0] : 'Keluarga'}</span>
+            </button>
+
             {/* Notification Bell */}
             <NotificationBell
               notifications={notifications}
@@ -1338,6 +1379,14 @@ export default function App() {
                   <span>Atur PIN</span>
                 </>
               )}
+            </button>
+
+            <button
+              onClick={() => setShowSettingsPage(true)}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer"
+              title="Pengaturan"
+            >
+              <Shield className="w-3.5 h-3.5 text-slate-600" />
             </button>
 
             <button
@@ -2343,6 +2392,19 @@ export default function App() {
           );
         })}
       </div>
+
+      {/* Settings Page */}
+      {showSettingsPage && (
+        <SettingsPage
+          authUser={authUser}
+          familyCode={syncCode}
+          authToken={authToken}
+          onClose={() => setShowSettingsPage(false)}
+          onRefreshToken={() => addToast('info', 'Token', 'Token sesi diperbarui')}
+          onExportCSV={handleExportCSV}
+          onClearAll={handleClearAll}
+        />
+      )}
 
       {/* Chat & Family Members */}
       {authToken && authUserId && (

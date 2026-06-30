@@ -1,5 +1,10 @@
+// Untuk development lokal: gunakan SQLite (zero config)
+//   DATABASE_URL="file:./dev.db"
+// Untuk production/Vercel: gunakan PostgreSQL
+//   DATABASE_URL="postgresql://user:pass@host/db"
+
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 

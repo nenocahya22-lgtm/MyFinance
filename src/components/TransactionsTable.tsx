@@ -38,6 +38,7 @@ export default function TransactionsTable({
   const [filterBucket, setFilterBucket] = useState<string>('all');
   const [filterAccount, setFilterAccount] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterPerson, setFilterPerson] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('date');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
@@ -47,6 +48,17 @@ export default function TransactionsTable({
     transactions.forEach(tx => {
       if (tx.category) {
         list.add(tx.category);
+      }
+    });
+    return Array.from(list).sort();
+  }, [transactions]);
+
+  // Extract all unique persons who created transactions
+  const uniquePersons = React.useMemo(() => {
+    const list = new Set<string>();
+    transactions.forEach(tx => {
+      if (tx.createdByName) {
+        list.add(tx.createdByName);
       }
     });
     return Array.from(list).sort();
@@ -155,7 +167,10 @@ export default function TransactionsTable({
       // 5. Category filter
       const matchesCategory = filterCategory === 'all' || tx.category === filterCategory;
 
-      return matchesSearch && matchesType && matchesBucket && matchesAccount && matchesCategory;
+      // 6. Person filter
+      const matchesPerson = filterPerson === 'all' || tx.createdByName === filterPerson;
+
+      return matchesSearch && matchesType && matchesBucket && matchesAccount && matchesCategory && matchesPerson;
     })
     .sort((a, b) => {
       if (sortKey === 'date') {
@@ -167,7 +182,7 @@ export default function TransactionsTable({
       }
     });
 
-  const hasActiveFilters = search !== '' || filterType !== 'all' || filterBucket !== 'all' || filterAccount !== 'all' || filterCategory !== 'all';
+  const hasActiveFilters = search !== '' || filterType !== 'all' || filterBucket !== 'all' || filterAccount !== 'all' || filterCategory !== 'all' || filterPerson !== 'all';
 
   const handleResetFilters = () => {
     setSearch('');
@@ -175,6 +190,7 @@ export default function TransactionsTable({
     setFilterBucket('all');
     setFilterAccount('all');
     setFilterCategory('all');
+    setFilterPerson('all');
     setSortKey('date');
     setSortOrder('desc');
   };
@@ -212,6 +228,7 @@ export default function TransactionsTable({
 
         {/* Filter controls if transactions exist */}
         {transactions.length > 0 && (
+          <div>
           <div id="filter-controls-bar" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 pt-2">
             
             {/* Search Input */}
@@ -333,6 +350,39 @@ export default function TransactionsTable({
               </button>
             </div>
           </div>
+
+          {/* Person Filter Row */}
+          {uniquePersons.length > 1 && (
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Filter Anggota:</span>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setFilterPerson('all')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                    filterPerson === 'all'
+                      ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                      : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  Semua
+                </button>
+                {uniquePersons.map((person) => (
+                  <button
+                    key={person}
+                    onClick={() => setFilterPerson(person)}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                      filterPerson === person
+                        ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                        : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {person}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          </div>
         )}
 
         {/* Filter Indicator */}
@@ -418,6 +468,14 @@ export default function TransactionsTable({
                         <div className="flex flex-wrap items-center gap-2 text-[10px] text-slate-400 font-semibold">
                           <span className="font-bold text-slate-500">{formatIndoDate(tx.date)}</span>
                           <span>•</span>
+                          {tx.createdByName && (
+                            <>
+                              <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded-md text-slate-600 font-bold">
+                                {tx.createdByName}
+                              </span>
+                              <span>•</span>
+                            </>
+                          )}
                           {isTransfer ? (
                             <span className="text-amber-600 font-black flex items-center gap-0.5">
                               <ArrowRightLeft className="w-3 h-3 text-amber-500" />
@@ -519,13 +577,20 @@ export default function TransactionsTable({
                       {formatIndoDate(tx.date)}
                     </span>
                     
-                    <button
-                      id={`btn-delete-tx-mobile-${tx.id}`}
-                      onClick={() => onDeleteTransaction(tx.id)}
-                      className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer"
-                    >
+                    <div className="flex items-center gap-2">
+                      {tx.createdByName && (
+                        <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded-md text-[9px] font-bold text-slate-600">
+                          {tx.createdByName}
+                        </span>
+                      )}
+                      <button
+                        id={`btn-delete-tx-mobile-${tx.id}`}
+                        onClick={() => onDeleteTransaction(tx.id)}
+                        className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer"
+                      >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
+                  </div>
                   </div>
 
                   <div className="space-y-1.5">

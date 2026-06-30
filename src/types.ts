@@ -33,6 +33,8 @@ export interface Transaction {
   toAccountId?: string; // Receiving Account for 'transfer' transaction (linked to Account.id)
   createdAt: string;
   category?: string; // e.g. "Makanan & Minuman", "Transportasi", etc.
+  createdBy?: string; // username/id of the person who created this transaction
+  createdByName?: string; // display name of the person
 }
 
 export interface FinanceSummaryData {

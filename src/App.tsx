@@ -999,6 +999,13 @@ export default function App() {
     };
   }, [filteredTransactionsByMonth]);
 
+  // Get current display name for tagging transactions
+  const getCurrentUserDisplayName = () => {
+    if (authUser?.name) return authUser.name;
+    if (authUserId) return authUserId.split('@')[0] || authUserId;
+    return 'Lokal';
+  };
+
   // Insert a new transaction
   const handleAddTransaction = (data: {
     type: TransactionType;
@@ -1019,6 +1026,8 @@ export default function App() {
       accountId: data.accountId,
       category: data.category,
       createdAt: new Date().toISOString(),
+      createdBy: authUserId || undefined,
+      createdByName: getCurrentUserDisplayName(),
     };
 
     setTransactions((prev) => [newTx, ...prev]);
@@ -1075,6 +1084,8 @@ export default function App() {
       accountId: fromAccountId,
       toAccountId: toAccountId,
       createdAt: new Date().toISOString(),
+      createdBy: authUserId || undefined,
+      createdByName: getCurrentUserDisplayName(),
     };
 
     setTransactions((prev) => [newTx, ...prev]);
@@ -1097,6 +1108,8 @@ export default function App() {
       date: todayStr,
       bucketId: 'umum',
       createdAt: new Date().toISOString(),
+      createdBy: authUserId || undefined,
+      createdByName: getCurrentUserDisplayName(),
     };
 
     // 2. Transaction Cash IN to target Saku
@@ -1108,6 +1121,8 @@ export default function App() {
       date: todayStr,
       bucketId: targetBucketId,
       createdAt: new Date().toISOString(),
+      createdBy: authUserId || undefined,
+      createdByName: getCurrentUserDisplayName(),
     };
 
     setTransactions((prev) => [txIn, txOut, ...prev]);
@@ -1130,6 +1145,8 @@ export default function App() {
       date: todayStr,
       bucketId: sourceBucketId,
       createdAt: new Date().toISOString(),
+      createdBy: authUserId || undefined,
+      createdByName: getCurrentUserDisplayName(),
     };
 
     // 2. Transaction Cash IN to Saku Utama ('umum') (increases Saku Utama)
@@ -1141,6 +1158,8 @@ export default function App() {
       date: todayStr,
       bucketId: 'umum',
       createdAt: new Date().toISOString(),
+      createdBy: authUserId || undefined,
+      createdByName: getCurrentUserDisplayName(),
     };
 
     setTransactions((prev) => [txIn, txOut, ...prev]);
@@ -1160,6 +1179,8 @@ export default function App() {
       date: dateStr || new Date().toISOString().substring(0, 10),
       bucketId: bucketId,
       createdAt: new Date().toISOString(),
+      createdBy: authUserId || undefined,
+      createdByName: getCurrentUserDisplayName(),
     };
     setTransactions((prev) => [newTx, ...prev]);
     const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
@@ -1178,6 +1199,8 @@ export default function App() {
       date: dateStr || new Date().toISOString().substring(0, 10),
       bucketId: bucketId,
       createdAt: new Date().toISOString(),
+      createdBy: authUserId || undefined,
+      createdByName: getCurrentUserDisplayName(),
     };
     setTransactions((prev) => [newTx, ...prev]);
     const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
@@ -2079,6 +2102,7 @@ export default function App() {
             transactionCount={counts.total}
             incomeCount={counts.incomeCount}
             expenseCount={counts.expenseCount}
+            transactions={filteredTransactionsByMonth}
           />
         </section>
 

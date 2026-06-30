@@ -1,15 +1,31 @@
-import React from 'react';
-import { Wallet, Landmark, ArrowUpRight, ArrowDownLeft, ShieldCheck } from 'lucide-react';
-import { FinanceSummaryData } from '../types';
+import React, { useMemo } from 'react';
+import { Wallet, Landmark, ArrowUpRight, ArrowDownLeft, ShieldCheck, User } from 'lucide-react';
+import { FinanceSummaryData, Transaction } from '../types';
 
 interface FinanceSummaryProps {
   summary: FinanceSummaryData;
   transactionCount: number;
   incomeCount: number;
   expenseCount: number;
+  transactions?: Transaction[];
 }
 
-export default function FinanceSummary({ summary, transactionCount, incomeCount, expenseCount }: FinanceSummaryProps) {
+export default function FinanceSummary({ summary, transactionCount, incomeCount, expenseCount, transactions }: FinanceSummaryProps) {
+  // Per-person summary from transactions
+  const personSummaries = useMemo(() => {
+    if (!transactions) return [];
+    const personMap = new Map<string, { name: string; income: number; expense: number }>();
+    transactions.forEach(tx => {
+      const name = tx.createdByName || 'Lokal';
+      if (!personMap.has(name)) {
+        personMap.set(name, { name, income: 0, expense: 0 });
+      }
+      const p = personMap.get(name)!;
+      if (tx.type === 'income') p.income += tx.amount;
+      else if (tx.type === 'expense') p.expense += tx.amount;
+    });
+    return Array.from(personMap.values()).sort((a, b) => b.expense - a.expense);
+  }, [transactions]);
   // Format to IDR Rupiah Currency
   const formatRupiah = (num: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -140,6 +156,36 @@ export default function FinanceSummary({ summary, transactionCount, incomeCount,
         </div>
 
       </div>
+
+      {/* Per-Person Breakdown */}
+      {personSummaries.length > 1 && (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <h4 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+            <User className="w-3.5 h-3.5 text-indigo-500" />
+            Ringkasan per Anggota
+          </h4>
+          <div className="space-y-2.5">
+            {personSummaries.map((p) => (
+              <div key={p.name} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-black">
+                    {p.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-xs font-bold text-slate-700">{p.name}</span>
+                </div>
+                <div className="text-right space-y-0.5">
+                  <p className="text-[10px] text-emerald-600 font-bold">
+                    +{formatRupiah(p.income)}
+                  </p>
+                  <p className="text-[10px] text-rose-600 font-bold">
+                    -{formatRupiah(p.expense)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
